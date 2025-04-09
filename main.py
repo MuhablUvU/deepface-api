@@ -1,38 +1,38 @@
 from fastapi import FastAPI, File, UploadFile
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
 from deepface import DeepFace
-import os
-from io import BytesIO
-from PIL import Image
+import numpy as np
+import cv2
 
 app = FastAPI()
 
-class EmotionResponse(BaseModel):
-    emotion: str
+@app.get("/")
+async def root():
+    return {"message": "Facial Emotion Recognition API is running"}
 
-@app.post("/predict_emotion", response_model=EmotionResponse)
-async def predict_emotion(file: UploadFile = File(...)):
+@app.post("/analyze/")
+async def analyze_emotion(file: UploadFile = File(...)):
     try:
-        # Read the image file
-        image_bytes = await file.read()
-        image = Image.open(BytesIO(image_bytes))
-        
-        # Save image to a temporary file
-        image_path = "temp.jpg"
-        image.save(image_path)
+        # Read the uploaded image file
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        # Use DeepFace to analyze the image
-        result = DeepFace.analyze(img_path=image_path, actions=['emotion'])
-        emotion = result[0]['dominant_emotion']
+        # Analyze emotion using DeepFace
+        result = DeepFace.analyze(img, actions = ['emotion'], enforce_detection=False)
+        data = result[0]
+        emotion_scores = {k: float(v) for k, v in data['emotion'].items()}
 
-        # Clean up the temporary file
-        os.remove(image_path)
-        
-        return EmotionResponse(emotion=emotion)
-    
+        return JSONResponse({
+            "dominant_emotion": str(data['dominant_emotion']),
+            "emotion_scores": emotion_scores
+        })
+
+
     except Exception as e:
-        return {"error": str(e)}
-
+        return JSONResponse(status_code=500, content={"error": str(e)})
+    
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
