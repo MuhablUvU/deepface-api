@@ -1,5 +1,5 @@
-deepface==0.0.79
-fastapi==0.95.0
-uvicorn==0.22.0
+deepface
+fastapi
+uvicorn
 pillow
 opencv-python-headless
