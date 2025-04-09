@@ -4,3 +4,6 @@ deepface
 python-multipart
 opencv-python-headless
 numpy
+tensorflow
+keras
+tf-keras
