@@ -3,3 +3,4 @@ fastapi
 uvicorn
 pillow
 opencv-python-headless
+tensorflow
