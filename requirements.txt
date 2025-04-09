@@ -1,6 +1,6 @@
-deepface
 fastapi
 uvicorn
-pillow
+deepface
+python-multipart
 opencv-python-headless
-tensorflow
+numpy
