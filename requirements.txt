@@ -4,4 +4,3 @@ uvicorn
 pillow
 opencv-python-headless
 tensorflow
-libgl1-mesa-glx
